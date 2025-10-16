@@ -1,10 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import ProjectList from '@/components/projects/ProjectList';
+import CreateProjectModal from '@/components/projects/CreateProjectModal';
 
 export default function Home() {
   const { user, loading, logout } = useAuth();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   if (loading) {
     return (
@@ -72,24 +77,21 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                ダッシュボード
-              </h2>
-              <p className="text-gray-600 mb-4">
-                プロジェクトとタスクの管理機能は今後実装されます
-              </p>
-              <div className="space-y-2 text-sm text-gray-500">
-                <p>✅ 認証機能が完了しました</p>
-                <p>⏳ プロジェクト一覧機能（次のタスク）</p>
-                <p>⏳ プロジェクト作成機能</p>
-                <p>⏳ タスク管理機能</p>
-              </div>
-            </div>
-          </div>
+          <ProjectList 
+            onCreateProject={() => setIsCreateModalOpen(true)}
+            refreshTrigger={refreshTrigger}
+          />
         </div>
       </main>
+
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onProjectCreated={() => {
+          // プロジェクト一覧を再読み込み
+          setRefreshTrigger(prev => prev + 1);
+        }}
+      />
     </div>
   );
 }
