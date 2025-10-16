@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, description, projectId, assigneeId, priority, dueDate } = await request.json();
+    const { title, description, projectId, assigneeId, priority, dueDate, status } = await request.json();
 
     // バリデーション
     if (!title || title.trim().length === 0) {
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       id: taskId,
       title: title.trim(),
       description: description?.trim() || null,
-      status: 'todo',
+      status: status || 'todo',
       priority: priority || 'medium',
       due_date: dueDate || null,
       project_id: projectId,

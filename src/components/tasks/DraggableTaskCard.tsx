@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import TaskDetailModal from './TaskDetailModal';
 
 interface Task {
@@ -19,7 +21,7 @@ interface Task {
   } | null;
 }
 
-interface TaskCardProps {
+interface DraggableTaskCardProps {
   task: Task;
   userRole: 'editor' | 'viewer';
   onUpdate: () => void;
@@ -56,8 +58,22 @@ const statusConfig = {
   },
 };
 
-export default function TaskCard({ task, userRole, onUpdate, projectId }: TaskCardProps) {
+export default function DraggableTaskCard({ task, userRole, onUpdate, projectId }: DraggableTaskCardProps) {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'done';
 
@@ -86,10 +102,14 @@ export default function TaskCard({ task, userRole, onUpdate, projectId }: TaskCa
   return (
     <>
       <div
+        ref={setNodeRef}
+        style={style}
         className={`bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition-shadow ${
           isOverdue ? 'border-l-4 border-red-500' : ''
-        }`}
+        } ${isDragging ? 'opacity-50' : ''}`}
         onClick={() => setIsDetailModalOpen(true)}
+        {...attributes}
+        {...listeners}
       >
         <div className="flex justify-between items-start mb-2">
           <h4 className="font-medium text-gray-900 line-clamp-2">{task.title}</h4>
@@ -164,6 +184,13 @@ export default function TaskCard({ task, userRole, onUpdate, projectId }: TaskCa
             )}
           </div>
         )}
+
+        {/* ドラッグハンドル */}
+        <div className="mt-2 flex justify-center">
+          <div className="w-6 h-1 bg-gray-300 rounded cursor-grab active:cursor-grabbing">
+            <div className="w-full h-full bg-gray-400 rounded"></div>
+          </div>
+        </div>
       </div>
 
       <TaskDetailModal

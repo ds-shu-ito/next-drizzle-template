@@ -26,7 +26,7 @@ export async function PUT(
       );
     }
 
-    const { taskId } = params;
+    const { taskId } = await params;
     const { status, title, description, priority, dueDate, assigneeId } = await request.json();
 
     // タスクの存在確認とユーザーの編集権限確認
@@ -108,7 +108,7 @@ export async function DELETE(
       );
     }
 
-    const { taskId } = params;
+    const { taskId } = await params;
 
     // タスクの存在確認とユーザーの編集権限確認
     const taskWithProject = await db

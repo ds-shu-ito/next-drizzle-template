@@ -26,7 +26,7 @@ export async function GET(
       );
     }
 
-    const { projectId } = params;
+    const { projectId } = await params;
 
     // プロジェクトの存在確認とユーザーの参加確認
     const projectMembership = await db
@@ -84,6 +84,155 @@ export async function GET(
     });
   } catch (error) {
     console.error('Project detail API error:', error);
+    return NextResponse.json(
+      { error: 'サーバーエラーが発生しました' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { projectId: string } }
+) {
+  try {
+    // 認証チェック
+    const token = request.cookies.get('auth-token')?.value;
+    if (!token) {
+      return NextResponse.json(
+        { error: '認証が必要です' },
+        { status: 401 }
+      );
+    }
+
+    const user = await getUserFromToken(token);
+    if (!user) {
+      return NextResponse.json(
+        { error: '認証が必要です' },
+        { status: 401 }
+      );
+    }
+
+    const { projectId } = await params;
+    const { name, description } = await request.json();
+
+    // バリデーション
+    if (!name || name.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'プロジェクト名は必須です' },
+        { status: 400 }
+      );
+    }
+
+    // プロジェクトの存在確認とユーザーの編集権限確認
+    const projectMembership = await db
+      .select({
+        role: projectsUsers.role,
+      })
+      .from(projectsUsers)
+      .where(
+        and(
+          eq(projectsUsers.project_id, projectId),
+          eq(projectsUsers.user_id, user.id)
+        )
+      )
+      .limit(1);
+
+    if (projectMembership.length === 0) {
+      return NextResponse.json(
+        { error: 'プロジェクトが見つからないか、アクセス権限がありません' },
+        { status: 404 }
+      );
+    }
+
+    if (projectMembership[0].role !== 'editor') {
+      return NextResponse.json(
+        { error: 'プロジェクトを編集する権限がありません' },
+        { status: 403 }
+      );
+    }
+
+    // プロジェクトを更新
+    await db
+      .update(projects)
+      .set({
+        name: name.trim(),
+        description: description?.trim() || null,
+      })
+      .where(eq(projects.id, projectId));
+
+    return NextResponse.json({
+      message: 'プロジェクトが更新されました',
+    });
+  } catch (error) {
+    console.error('Update project API error:', error);
+    return NextResponse.json(
+      { error: 'サーバーエラーが発生しました' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { projectId: string } }
+) {
+  try {
+    // 認証チェック
+    const token = request.cookies.get('auth-token')?.value;
+    if (!token) {
+      return NextResponse.json(
+        { error: '認証が必要です' },
+        { status: 401 }
+      );
+    }
+
+    const user = await getUserFromToken(token);
+    if (!user) {
+      return NextResponse.json(
+        { error: '認証が必要です' },
+        { status: 401 }
+      );
+    }
+
+    const { projectId } = await params;
+
+    // プロジェクトの存在確認とユーザーの編集権限確認
+    const projectMembership = await db
+      .select({
+        role: projectsUsers.role,
+      })
+      .from(projectsUsers)
+      .where(
+        and(
+          eq(projectsUsers.project_id, projectId),
+          eq(projectsUsers.user_id, user.id)
+        )
+      )
+      .limit(1);
+
+    if (projectMembership.length === 0) {
+      return NextResponse.json(
+        { error: 'プロジェクトが見つからないか、アクセス権限がありません' },
+        { status: 404 }
+      );
+    }
+
+    if (projectMembership[0].role !== 'editor') {
+      return NextResponse.json(
+        { error: 'プロジェクトを削除する権限がありません' },
+        { status: 403 }
+      );
+    }
+
+    // プロジェクトを削除（関連するタスクやコメントも自動削除される）
+    await db.delete(projects).where(eq(projects.id, projectId));
+
+    return NextResponse.json({
+      message: 'プロジェクトが削除されました',
+    });
+  } catch (error) {
+    console.error('Delete project API error:', error);
     return NextResponse.json(
       { error: 'サーバーエラーが発生しました' },
       { status: 500 }

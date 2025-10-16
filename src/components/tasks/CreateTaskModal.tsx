@@ -41,6 +41,7 @@ export default function CreateTaskModal({
           projectId,
           priority,
           dueDate: dueDate || null,
+          status: initialStatus,
         }),
       });
 
@@ -161,7 +162,7 @@ export default function CreateTaskModal({
             </div>
 
             <div className="text-sm text-gray-500">
-              ステータス: {initialStatus === 'todo' ? 'To Do' : initialStatus === 'in_progress' ? 'In Progress' : 'Done'}
+              ステータス: {initialStatus === 'todo' ? '未着手' : initialStatus === 'in_progress' ? '進行中' : '完了'}
             </div>
 
             {error && (
