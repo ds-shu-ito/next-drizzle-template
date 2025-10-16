@@ -8,9 +8,9 @@ AIエージェントがアプリケーションを構築するためのタスク
 
 | No. | ステータス | タスク内容 |
 | :-- | :---: | :--- |
-| 1 | `☐` | **環境構築**: Next.jsプロジェクトをセットアップする (`pnpm create next-app`)|
-| 2 | `☐` | **DB設計**: `docs/03_database.md` に基づき、Drizzle ORMのスキーマ定義ファイルを作成する (`/src/lib/db/schema.ts`)。 |
-| 3 | `☐` | **DBマイグレーション**: Drizzle ORMでマイグレーションを実行し、データベースにテーブルを作成する。 |
+| 1 | `☑` | **環境構築**: Next.jsプロジェクトをセットアップする (`pnpm create next-app`)|
+| 2 | `☑` | **DB設計**: `docs/03_database.md` に基づき、Drizzle ORMのスキーマ定義ファイルを作成する (`/src/lib/db/schema.ts`)。 |
+| 3 | `☑` | **DBマイグレーション**: Drizzle ORMでマイグレーションを実行し、データベースにテーブルを作成する。 |
 
 ---
 
