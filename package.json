@@ -12,10 +12,15 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.6",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.2",
     "next": "15.5.5",
+    "next-auth": "^4.24.11",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
